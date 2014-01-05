@@ -9,11 +9,11 @@ Prepare can process HTML files, executing JS snippets along the way. To specify
 the content of a script tag should be executed by Prepare, give it a type
 attribute of (or similar to) "server", such as:
 
-    <script type="server">console.log('Hi!');</server>
+    <script type="server">console.log('Hi!');</script>
     <script type="on/server">
         var db = require('../db');
         $('post').text(db.get(request.split('/').pop()));
-    </server>
+    </script>
 
 These are then executed in a browser-like environment. In addition to all
 standard node-functionality, the following is currently also available:
@@ -24,7 +24,7 @@ standard node-functionality, the following is currently also available:
 
 After parsing the whole document, Prepare removes all server-side code, adds a
 few useful definitions for the client side, and returns the resulting HTML.
-Client side <script>s (lacking the "server" attribute) will not be executed by
+Client side script tags (lacking the "server" attribute) will not be executed by
 Prepare. To specify a script should be executed on both client and server,
 use a type of "client/server". Inside of these scripts, you can distinguish
 between the two via the onServer and onClient attributes. Note that all of the
