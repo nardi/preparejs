@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 var fs = require('fs'),
     prepare = require('./prepare'),
 	url = require('url'),
@@ -6,6 +8,8 @@ var fs = require('fs'),
     fcgi = require('fastcgi-server');    
     
 var version = require('./package.json').version;
+
+console.error('Welcome to Prepare.js version %s!', version);
 
 process.on('uncaughtException', function(error) {
     console.error('Error: ' + error + '\n');
