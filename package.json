@@ -1,0 +1,29 @@
+{
+  "name": "prepare",
+  "description": "PHP for today's web: simple server-side JavaScript execution",
+  "keywords": [
+    "php"
+  ],
+  "version": "0.0.1",
+  "author": {
+    "name": "Nardi Lam",
+    "email": "me@nardilam.nl"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/nardi/prepare-js.git"
+  },
+  "preferGlobal": true,
+  "bin": "./main.js",
+  "main": "./prepare.js",
+  "dependencies": {
+    "jsdom": "0.8.8",
+    "fastcgi-server": "0.0.5",
+    "optimist": "0.6.0",
+    "memoizee": "0.2.6",
+    "uglify-js": "2.4.8"
+  },
+  "engines": {
+    "node": ">= 0.10.21"
+  }
+}

@@ -1,4 +1,6 @@
-preparejs
-=========
+Prepare.js
+==========
 
-PHP for today's web: simple server-side JavaScript execution for building web pages
+An easy method for executing JavaScript on the server in a browser-like
+environment, or more fancily, a basic framework for isomorphic JavaScript
+applications.
