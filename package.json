@@ -11,11 +11,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/nardi/prepare-js.git"
+    "url": "git://github.com/nardi/preparejs.git"
   },
   "preferGlobal": true,
-  "bin": "./main.js",
-  "main": "./prepare.js",
+  "bin": "./main",
+  "main": "./prepare",
   "dependencies": {
     "jsdom": "0.8.8",
     "fastcgi-server": "0.0.5",

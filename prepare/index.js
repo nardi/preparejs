@@ -22,7 +22,7 @@ var defaultClient = UglifyJS.minify(defaultJs + readExt('ext-client.js'),
     {fromString: true}).code;
 
 function prepareWindow(window, req, res, scripts, fullRes) {
-    window.require = require('./relativerequire');
+    window.require = require('../require');
     window.console = Object.create(console);
     window.console.log = window.console.info = window.console.error;
     window.request = req;

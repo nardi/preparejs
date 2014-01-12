@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 
 var fs = require('fs'),
-    prepare = require('./prepare'),
+    prepare = require('../prepare'),
 	url = require('url'),
 	path = require('path'),
     http = require('http'),
     fcgi = require('fastcgi-server');    
     
-var version = require('./package.json').version;
+var version = require('../package.json').version;
 
 console.error('Welcome to Prepare.js version %s!', version);
 
