@@ -4,7 +4,7 @@
   "keywords": [
     "php"
   ],
-  "version": "0.0.3",
+  "version": "0.0.4",
   "author": {
     "name": "Nardi Lam",
     "email": "me@nardilam.nl"
@@ -14,8 +14,8 @@
     "url": "git://github.com/nardi/preparejs.git"
   },
   "preferGlobal": true,
-  "bin": "./main",
-  "main": "./prepare",
+  "bin": "./main.js",
+  "main": "./prepare.js",
   "dependencies": {
     "jsdom": "~0.10.3",
     "uglify-js": "~2.4.13",
