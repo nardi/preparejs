@@ -1,13 +1,14 @@
 #!/usr/bin/env node
 
 var fs = require('fs'),
-    prepare = require('../prepare'),
-	url = require('url'),
-	path = require('path'),
+    prepare = require('./prepare'),
+    url = require('url'),
+    path = require('path'),
     http = require('http'),
-    fcgi = require('fastcgi-server');    
+    fcgi = require('fastcgi-server')
+    connect = require('connect');    
     
-var version = require('../package.json').version;
+var version = require('./package.json').version;
 
 console.error('Welcome to Prepare.js version %s!', version);
 
@@ -48,7 +49,12 @@ var argPath = argv._[0] || '.';
 
 var stats = fs.statSync(argPath);
 if (stats.isFile()) {
-    prepare(argPath, null, null, console.log);
+    prepare({
+        file: argPath,
+        callback: function (err, html) {
+            console.log(html);
+        }
+    });
 } else if (stats.isDirectory()) {
     process.chdir(argPath);
     if (path.dirname(path.resolve(argPath)) !== 'public') {
@@ -59,19 +65,10 @@ if (stats.isFile()) {
     
     console.error('Hosting server in ' + process.cwd());
 
-    function processRequest(req, res) {
-        var reqpath = '.' + url.parse(req.url).pathname;
-        console.error('Recieved request for ' + reqpath);
-        prepare(reqpath, req, res, function(err, html) {
-            if (err) {
-                console.error('Error processing request: ' + err);
-                res.writeHead(500);
-                res.end();
-            } else {
-                res.end(html);
-            }
-        });
-    }
+    var processRequest = connect()
+      .use(connect.logger('dev'))
+      .use(prepare.middleware(process.cwd()))
+      .use(connect.static(process.cwd()));
 
     var server, listen;
     if (argv.fcgi) {
