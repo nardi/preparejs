@@ -1,4 +1,4 @@
-﻿/* == Dependency includes == */
+﻿/*                                 == Dependency includes ==                                */
 var jsdom = require('jsdom'),
     fs = require('fs'),
     path = require('path'),
@@ -7,7 +7,7 @@ var jsdom = require('jsdom'),
     fibrous = require('fibrous'),
     Module = require('module');
 
-/* === Utility functions === */
+/*                                 === Utility functions ===                                */
 
 // Checks whether a string ends with the specified substring
 String.prototype.endsWith = function(suffix) {
@@ -55,7 +55,7 @@ function include(window, scripts, before) {
     }
 };
 
-/* ==== The Prepare preprocessor ==== */
+/*                            ==== The Prepare preprocessor ====                            */
 
 // Default environment setup scripts for client and server.
 var env = { 
@@ -65,9 +65,9 @@ var env = {
 
 var NO_FILE_TO_PROCESS = new Error('No file to process');
 
-// The main Prepare function. Processes a .js.html file, executing server-side scripts as specified,
-// or a .html.js file, which is executed in the context of an empty DOM, leaving the user to fill it
-// in any way possible (or just directly write a response).
+// The main Prepare function. Processes a .js.html file, executing server-side scripts as 
+// specified, or a .html.js file, which is executed in the context of an empty DOM, leaving
+// the user to fill it in any way possible (or just directly write a response).
 var prepare = module.exports = function(options, callback) {
     var req = options.req, res = options.res,
         dir = options.dir || options.directory || '',
@@ -113,7 +113,8 @@ var prepare = module.exports = function(options, callback) {
                     responseState = prepareWindow(window, filename, req, res, !!script);
                 }
                 
-                // Set up the currentScript property, so the code can find the element it belongs to.
+                // Set up the currentScript property, so the code can find the element it 
+                // belongs to.
                 window.document.currentScript = element;
                 
                 try {
@@ -146,10 +147,12 @@ var prepare = module.exports = function(options, callback) {
                 url: pathToFileUrl(filename)
             }).parentWindow;
 
-            // Remove the currentScript property, so asynchronous scripts won't think they're actually the last one.
+            // Remove the currentScript property, so asynchronous scripts won't think 
+            // they're actually the last one.
             delete window.document.currentScript;
         
-            // If no scripts have been executed, set up the environment anyway, so "finish" works correctly (for the client side).
+            // If no scripts have been executed, set up the environment anyway, so "finish" 
+            // works correctly (for the client side).
             if (!responseState) {
                 responseState = prepareWindow(window, filename, req, res, !!script);
             }
@@ -168,8 +171,9 @@ var prepare = module.exports = function(options, callback) {
     });
 };
 
-// This is the function that adds additional properties to the window object to make sure it is able to handle user code.
-// Because some scripts are run to set up the correct environment, the window object must be fully constructed before this function is executed. 
+// This is the function that adds additional properties to the window object to make sure it 
+// is able to handle user code. Because some scripts are run to set up the correct 
+// environment, the window object must be fully constructed before this function is executed. 
 function prepareWindow(window, filename, req, res, fullResponse) {
     window.require = new Module(filename, module).require;
     window.console = Object.create(console);
@@ -213,7 +217,8 @@ function prepareWindow(window, filename, req, res, fullResponse) {
     return _res;
 };
 
-// Collects the final document from the window object, cleans it up, and returns it to the caller.
+// Collects the final document from the window object, cleans it up, and returns it to the 
+// caller.
 function finish(responseState, window, req, errors, callback) {
     // Set a handler function for when all scripts have finished execution.
     responseState.onFinish = function() {
@@ -269,8 +274,8 @@ function finish(responseState, window, req, errors, callback) {
         responseState.onFinish();
 }
 
-// This returns a "middleware" function relative to the specified directory,
-// for use with systems like ''connect''.
+// This returns a "middleware" function relative to the specified directory, for use with 
+// systems like ''connect''.
 prepare.middleware = function(dir) {
     return function(req, res, next) {
         prepare({

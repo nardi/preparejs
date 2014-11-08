@@ -76,7 +76,7 @@ if (stats.isFile()) {
         listen = typeof argv.fcgi === 'string' ? argv.fcgi : defaults.fcgi;
     } else {
         server = http;
-        listen = typeof argv.http === 'string' ? parseInt(argv.http) : defaults.http;
+        listen = typeof argv.http === 'number' ? argv.http : defaults.http;
     }
     server.createServer(processRequest).listen(listen);
     
