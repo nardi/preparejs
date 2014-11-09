@@ -250,8 +250,22 @@ function prepareWindow(window, filename, req, res, fullResponse) {
     
     window.response.data = {};
     
-    window.response.register = function(code) {
-        _res.registeredScripts[_res.registeredScripts.length] = { text: code };
+    var minify = function(code) {
+        return UglifyJS.minify(code, {fromString: true}).code;
+    };
+    
+    window.response.register = function(script) {
+        if (typeof script === 'string')
+            _res.registeredScripts.push({ text: minify(script) });
+        else if (typeof script === 'function') {
+            var code = 'var f = ' + script.toString() + ';f(';
+            for (var i = 1; i < arguments.length; i++)
+                code += JSON.stringify(arguments[i]) + ',';
+            code = code.substring(0, code.length - 1) + ')';
+            _res.registeredScripts.push({ text: minify(code) });
+        } else if (typeof script === 'object') {
+            _res.registeredScripts.push(script);
+        }
     };
 
     window.run(env.server);

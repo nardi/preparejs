@@ -6,7 +6,12 @@ var fs = require('fs'),
     path = require('path'),
     http = require('http'),
     fcgi = require('fastcgi-server')
-    connect = require('connect');    
+    connect = require('connect'),
+    Module = require('module');    
+    
+Array.prototype.flatten = function() {
+    return Array.prototype.concat.apply([], this);
+};
     
 var version = require('./package.json').version;
 
@@ -65,10 +70,28 @@ if (stats.isFile()) {
     
     console.error('Hosting server in ' + process.cwd());
 
-    var processRequest = connect()
-      .use(connect.logger('dev'))
-      .use(prepare.middleware(process.cwd()))
-      .use(connect.static(process.cwd()));
+    var isDirectory = function(file) {
+        return fs.existsSync(file) && fs.statSync(file).isDirectory();
+    }
+    
+    var modulePaths = Module._nodeModulePaths(process.cwd()).filter(isDirectory)
+        .map(function(dir) {
+            return fs.readdirSync(dir).map(function(file) {
+                return path.join(path.resolve(dir, file), 'public');
+            }).filter(isDirectory);
+        }).flatten();
+
+    var paths = [process.cwd()].concat(modulePaths);
+    
+    var processRequest = connect().use(connect.logger('dev'));
+    
+    paths.forEach(function(path) {
+        processRequest = processRequest.use(prepare.middleware(path));
+    });
+    
+    paths.forEach(function(path) {
+        processRequest = processRequest.use(connect.static(path));
+    });
 
     var server, listen;
     if (argv.fcgi) {
