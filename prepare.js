@@ -45,13 +45,15 @@ function copySome(obj, props) {
 // Includes scripts in a document, before a certain node.
 function include(window, scripts, before) {
     var insertNode = before;
-    var parent = insertNode.parentNode;
     for (var i = 0; i < scripts.length; i++) {
         var node = window.document.createElement('script');
         for (var n in scripts[i]) {
             node[n] = scripts[i][n];
         }
-        parent.insertBefore(node, insertNode);
+        if (insertNode)
+            insertNode.parentNode.insertBefore(node, insertNode);
+        else
+            window.document.body.appendChild(node);
     }
 };
 
@@ -171,14 +173,49 @@ var prepare = module.exports = function(options, callback) {
     });
 };
 
+// Creates a properly working require function from the context of filename as if it were a 
+// module. Based on code from node's module.js.
+function createRequire(filename) {
+    var newModule = new Module(filename, module);
+    newModule.filename = filename;
+    newModule.paths = Module._nodeModulePaths(path.dirname(filename));
+    
+    function require(path) {
+        return newModule.require(path);
+    }
+
+    require.resolve = function(request) {
+        return Module._resolveFilename(request, newModule);
+    };
+
+    Object.defineProperty(require, 'paths', { get: function() {
+        throw new Error('require.paths is removed. Use ' +
+                        'node_modules folders, or the NODE_PATH ' +
+                        'environment variable instead.');
+    }});
+
+    require.main = process.mainModule;
+
+    // Enable support to add extra extension types
+    require.extensions = Module._extensions;
+    require.registerExtension = function() {
+        throw new Error('require.registerExtension() removed. Use ' +
+                        'require.extensions instead.');
+    };
+
+    require.cache = Module._cache;
+    
+    return require;
+}
+
 // This is the function that adds additional properties to the window object to make sure it 
 // is able to handle user code. Because some scripts are run to set up the correct 
 // environment, the window object must be fully constructed before this function is executed. 
-function prepareWindow(window, filename, req, res, fullResponse) {
-    window.require = new Module(filename, module).require;
+function prepareWindow(window, filename, req, res, fullResponse) {    
     window.console = Object.create(console);
     window.console.log = window.console.info = window.console.error;
     window.request = req;
+    window.require = createRequire(filename);
     
     if (fullResponse) {
         window.response = Object.create(res);
@@ -192,7 +229,8 @@ function prepareWindow(window, filename, req, res, fullResponse) {
     }
     var _res = {
         scriptHold: 0,
-        execFinished: false
+        execFinished: false,
+        registeredScripts: []
     };
     window.response.hold = function() {
         _res.scriptHold++;
@@ -211,6 +249,10 @@ function prepareWindow(window, filename, req, res, fullResponse) {
     });
     
     window.response.data = {};
+    
+    window.response.register = function(code) {
+        _res.registeredScripts[_res.registeredScripts.length] = { text: code };
+    };
 
     window.run(env.server);
     
@@ -248,6 +290,12 @@ function finish(responseState, window, req, errors, callback) {
             }
         });
 
+        if (responseState.registeredScripts.length > 0) {
+            scripts = window.document.getElementsByTagName('script');
+            var firstScript = scripts.length > 0 ? script[0] : undefined;
+            include(window, responseState.registeredScripts, firstScript);
+        }
+        
         scripts = window.document.getElementsByTagName('script');
         
         // Copy abridged request and response objects to the client.
