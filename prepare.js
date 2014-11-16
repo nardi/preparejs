@@ -236,7 +236,8 @@ function prepareWindow(window, filename, req, res, fullResponse) {
         _res.scriptHold++;
     };
     window.response.release = function() {
-        _res.scriptHold--;
+        if (_res.scriptHold > 0)
+            _res.scriptHold--;
         if (_res.scriptHold === 0 && _res.execFinished && _res.onFinish) {
             _res.onFinish();
         }
@@ -259,8 +260,12 @@ function prepareWindow(window, filename, req, res, fullResponse) {
             _res.registeredScripts.push({ text: minify(script) });
         else if (typeof script === 'function') {
             var code = 'var f = ' + script.toString() + ';f(';
-            for (var i = 1; i < arguments.length; i++)
-                code += JSON.stringify(arguments[i]) + ',';
+            for (var i = 1; i < arguments.length; i++) {
+                var arg = JSON.stringify(arguments[i]);
+                if (typeof arguments[i] === 'function')
+                    arg = arguments[i].toString();
+                code += arg + ',';
+            }
             code = code.substring(0, code.length - 1) + ')';
             _res.registeredScripts.push({ text: minify(code) });
         } else if (typeof script === 'object') {
@@ -306,7 +311,7 @@ function finish(responseState, window, req, errors, callback) {
 
         if (responseState.registeredScripts.length > 0) {
             scripts = window.document.getElementsByTagName('script');
-            var firstScript = scripts.length > 0 ? script[0] : undefined;
+            var firstScript = scripts.length > 0 ? scripts[0] : undefined;
             include(window, responseState.registeredScripts, firstScript);
         }
         
@@ -324,9 +329,13 @@ function finish(responseState, window, req, errors, callback) {
         // TODO: remove empty body style tag
         
         // Render the HTML into a string, free resources, and return.
-        var doctype = (window.document.doctype ? window.document.doctype : '');
-        var html = doctype + window.document.outerHTML;
-        window.close();
+        var html = jsdom.serializeDocument(window.document);
+        // Closing the window here to free possible resources seems reasonable, but it 
+        // causes (native) crashes when functions that clase over variables in the window 
+        // context get passed outside and executed at a later time. Not closing it does not 
+        // seem to have much of an effect on memory usage and makes sure node doesn't crash 
+        // when passing things to other contexts in complicated ways.
+        //window.close();
         callback(null, html);
     };
     

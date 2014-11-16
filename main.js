@@ -7,7 +7,10 @@ var fs = require('fs'),
     http = require('http'),
     fcgi = require('fastcgi-server')
     connect = require('connect'),
-    Module = require('module');    
+    connect.logger = require('morgan'),
+    connect.static = require('serve-static'),
+    connect.bodyParser = require('body-parser'),
+    Module = require('module');
     
 Array.prototype.flatten = function() {
     return Array.prototype.concat.apply([], this);
@@ -83,7 +86,9 @@ if (stats.isFile()) {
 
     var paths = [process.cwd()].concat(modulePaths);
     
-    var processRequest = connect().use(connect.logger('dev'));
+    var processRequest = connect()
+        .use(connect.logger('dev'))
+        .use(connect.bodyParser.urlencoded({ extended: true }));
     
     paths.forEach(function(path) {
         processRequest = processRequest.use(prepare.middleware(path));

@@ -4,7 +4,7 @@
   "keywords": [
     "php"
   ],
-  "version": "0.0.4",
+  "version": "0.0.5",
   "author": {
     "name": "Nardi Lam",
     "email": "me@nardilam.nl"
@@ -17,11 +17,13 @@
   "bin": "./main.js",
   "main": "./prepare.js",
   "dependencies": {
-    "jsdom": "~0.10.3",
-    "uglify-js": "~2.4.13",
-    "fibrous": "~0.3.3",
-    "connect": "~2.14.3",
+    "connect": "https://registry.npmjs.org/connect/-/connect-3.3.2.tgz",
     "fastcgi-server": "0.0.5",
-    "optimist": "~0.6.1"
+    "fibrous": "^0.3.3",
+    "jsdom": "^1.2.1",
+    "morgan": "https://registry.npmjs.org/morgan/-/morgan-1.5.0.tgz",
+    "optimist": "^0.6.1",
+    "serve-static": "https://registry.npmjs.org/serve-static/-/serve-static-1.7.1.tgz",
+    "uglify-js": "https://registry.npmjs.org/uglify-js/-/uglify-js-2.4.15.tgz"
   }
 }
