@@ -22,7 +22,7 @@
     "fibrous": "^0.3.3",
     "jsdom": "^1.2.1",
     "morgan": "https://registry.npmjs.org/morgan/-/morgan-1.5.0.tgz",
-    "node-fastcgi": "git://github.com/nardi/node-fastcgi.git",
+    "node-fastcgi": "nardi/node-fastcgi",
     "optimist": "^0.6.1",
     "serve-static": "https://registry.npmjs.org/serve-static/-/serve-static-1.7.1.tgz",
     "uglify-js": "https://registry.npmjs.org/uglify-js/-/uglify-js-2.4.15.tgz"
