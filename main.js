@@ -5,7 +5,7 @@ var fs = require('fs'),
     url = require('url'),
     path = require('path'),
     http = require('http'),
-    fcgi = require('fastcgi-server')
+    fcgi = require('node-fastcgi')
     connect = require('connect'),
     connect.logger = require('morgan'),
     connect.static = require('serve-static'),
@@ -22,18 +22,20 @@ console.error('Welcome to Prepare.js version %s!', version);
 
 process.on('uncaughtException', function(error) {
     console.error(error);
-    process.exit();
+    process.exit(1);
 });
 
 var optimist = require('optimist')
-    .usage('Usage:\tprepare [--http [port]|--fcgi [socket]] [path]\n'
+    .usage('Usage:\tprepare [--http [port]|--fcgi [socket]] [--path/-p path]\n'
         + '  Runs JavaScript on the server in a browser-like environment.\n'
         + '  If "path" is a file, executes it and writes the result to stdout.\n'
         + '  Otherwise, if it is a directory, starts a server with that directory as the root directory.')
     .alias('help', 'h')
+	.alias('path', 'p')
     .describe({
-        http: 'Run as HTTP server (default port 8080)',
-        fcgi: 'Run as FastCGI server (default socket /tmp/prepare.sock)',
+	    path: 'File/directory to work with',
+        http: 'Run as HTTP server (optional: port to listen on, default is 8080)',
+        fcgi: 'Run as FastCGI server (optional: socket to listen on, default is file descriptor 0)',
         help: 'Display this message'
     }),
     argv = optimist.argv;
@@ -49,11 +51,11 @@ if (argv.help) {
 }
 
 var defaults = {
-    fcgi: '/tmp/prepare.sock',
+    fcgi: { fd: 0 },
     http: 8080
 };
 
-var argPath = argv._[0] || '.';
+var argPath = argv.path || '.';
 
 var stats = fs.statSync(argPath);
 if (stats.isFile()) {
@@ -109,7 +111,7 @@ if (stats.isFile()) {
     server.createServer(processRequest).listen(listen);
     
     if (argv.fcgi)
-        console.error('FastCGI server listening on socket %s...', listen);
+        console.error('FastCGI server listening on %s...', typeof listen.fd === 'number' ? 'file descriptor ' + listen.fd : 'socket ' + listen);
     else
         console.error('HTTP server listening on port %d...', listen);
 }
