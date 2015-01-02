@@ -354,6 +354,7 @@ prepare.middleware = function(dir) {
             res: res,
             dir: dir,
             callback: function(err, html) {
+                res.setHeader('Content-Type', 'text/html');
                 if (err) {
                     if (err === NO_FILE_TO_PROCESS) {
                         next();

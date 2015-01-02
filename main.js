@@ -89,7 +89,7 @@ if (stats.isFile()) {
     var paths = [process.cwd()].concat(modulePaths);
     
     var processRequest = connect()
-        .use(connect.logger('dev'))
+        .use(connect.logger('combined', { stream: process.stderr }))
         .use(connect.bodyParser.urlencoded({ extended: true }));
     
     paths.forEach(function(path) {
